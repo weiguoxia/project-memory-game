@@ -8,7 +8,9 @@ let cards = ['fa-paper-plane-o', 'fa-diamond','fa-anchor', 'fa-bolt', 'fa-cube',
 let previousCard = null;
 let countMatch = 0;
 let moves = 0;
+let firstClick = false;
 let startTime = new Date().getTime();
+
 function clockString() {
   var now = new Date().getTime();
   var distance = now - startTime;
@@ -21,11 +23,10 @@ function clockString() {
 }
 
 function clock() {
-  // Display the result in the element with id="demo"
   document.getElementById("clock").innerHTML = clockString();
 }
 
-var x = setInterval(clock, 1000);
+var x;
 
 function showWinPage(numOfStars) {
   while (document.body.firstChild) {
@@ -59,12 +60,13 @@ function restart() {
   });
   countMatch = 0;
   moves = 0;
+  firstClick = false;
   updateMoves();
   updateStars();
   clearInterval(x);
-  startTime = new Date().getTime();
-  x = setInterval(clock, 1000);
 }
+
+
 
 /*
  * Display the cards on the page
@@ -104,12 +106,18 @@ function updateMoves() {
   updateStars();
 }
 
+function startClock() {
+  startTime = new Date().getTime();
+  x = setInterval(clock, 1000);
+}
+
 function updateStars() {
   if(moves == 0) {
+    document.getElementById("clock").innerHTML = 0 + "d " + 0 + "h " + 0 + "m " + 0 + "s ";
     let ul = document.getElementsByClassName("fa-star-o");
     for (i = 0; i < ul.length; i++) {
-      ul[i].classList.remove("fa-star-o");
       ul[i].classList.add("fa-star");
+      ul[i].classList.remove("fa-star-o");
     }
   }else if(moves === 3) {
     let ul = document.querySelector(".stars");
@@ -124,9 +132,11 @@ function updateStars() {
 
 document.querySelector(".deck").addEventListener('click', function(event) {
   let currentCard = event.target;
+  if(firstClick === false) {
+    firstClick = true;
+    startClock();
+  }
   if(currentCard.nodeName === "LI" && currentCard !== previousCard) {
-    moves++;
-    updateMoves();
     if(previousCard === null) {
       currentCard.classList.add("show", "open");
       previousCard = currentCard;
@@ -140,6 +150,8 @@ document.querySelector(".deck").addEventListener('click', function(event) {
     } else {
       currentCard.classList.add("open", "show");
       setTimeout(function() {
+        moves++;
+        updateMoves();
         currentCard.classList.remove("open", "show");
         previousCard.classList.remove("open", "show");
         previousCard = null;
